@@ -153,9 +153,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--rule2);cursor:pointer;background:var(--card);color:var(--ink2);font-family:'DM Sans',sans-serif;transition:all 0.12s}
 .chip:hover{border-color:var(--rule2);background:var(--card2)}
-.chip.cp{background:var(--navy-l);color:var(--navy);border-color:var(--navy-lt)}   /* profile */
-.chip.ce{background:var(--rose-l);color:var(--rose);border-color:var(--rose-lt)}   /* error */
-.chip.ca{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt)}   /* aircraft */
+.chip.cp{background:var(--navy-l);color:var(--navy);border-color:var(--navy-lt)}       /* learner profile */
+.chip.ce{background:var(--rose-l);color:var(--rose);border-color:var(--rose-lt)}       /* error */
+.chip.ca{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt)}       /* aircraft family */
+.chip.ct{background:#f3f0fb;color:#4a2d8a;border-color:#c8b8ec}                        /* training phase */
+.chip.cf{background:var(--amber-l);color:var(--amber);border-color:var(--amber-lt)}    /* flight phase */
+.obs-box{width:100%;padding:9px 11px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:56px;background:var(--card);color:var(--ink);line-height:1.5;transition:border-color 0.15s;margin-bottom:1rem}
+.obs-box:focus{outline:none;border-color:var(--navy)}
 
 .card-footer{padding:0.75rem 1.25rem;background:var(--card2);border-top:1px solid var(--rule);display:flex;justify-content:flex-end;align-items:center;gap:10px}
 .saved-flash{font-size:12px;color:var(--teal);opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:4px}
@@ -292,20 +296,29 @@ const LEARNER_PROFILES = [
   "Type-rating candidate","Recurrent trainee"
 ];
 
+const TRAINING_PHASES = [
+  "Initial type rating","Recurrent training","Line check","Command upgrade",
+  "Simulator only","Line flying under supervision","Base training","CRM course"
+];
+
+const FLIGHT_PHASES = [
+  "Pre-flight / briefing","Taxi","Takeoff","Climb","Cruise",
+  "Descent","Approach","Landing","Go-around","Post-flight / debrief",
+  "Emergency / abnormal","Any phase"
+];
+
+const AIRCRAFT_FAMILIES = [
+  "Boeing 737 family","Boeing 777 family","Boeing 787 family",
+  "Airbus A320 family","Airbus A330 family","Airbus A350 family",
+  "ATR family","Dash 8 / Q Series","Generic FNPT II","Any type"
+];
+
 const ERROR_TYPES = [
   "Loss of situation awareness","Task saturation","Complacency",
   "Authority gradient / CRM failure","Pseudo-listening","Automation over-reliance",
   "Checklist deviation","Mode confusion","Fuel mismanagement",
   "Go-around hesitation","CFIT risk","Poor self-assessment",
   "Communication breakdown","Fixation / tunnel vision"
-];
-
-const AIRCRAFT_TYPES = [
-  "B737 Classic","B737 NG","B737 MAX",
-  "B777","B787",
-  "A320 family","A330","A350",
-  "ATR 42/72","Dash 8 / Q400",
-  "Generic FNPT II","Full Flight Simulator (generic)"
 ];
 
 // ── PASTE YOUR FULL INTERVENTIONS JSON HERE ──────────────────────
@@ -5648,11 +5661,13 @@ let expert = {name:"", email:""};
 let data = RAW_INTERVENTIONS.map(d => ({
   ...d,
   status: "pending",
+  observations: "",
   comment: "",
   mappedProfiles: [],
+  mappedTrainingPhases: [],
+  mappedFlightPhases: [],
+  mappedAircraftFamilies: [],
   mappedErrors: [],
-  mappedAircraft: [],
-  suggestedSkill: d.skill_mapping?.proposed_skill || "",
   suggested: false
 }));
 let open = new Set();
@@ -5723,7 +5738,7 @@ function updateStats(){
 function toggleCard(id){open.has(id)?open.delete(id):open.add(id);render()}
 function setStatus(id,s){const d=data.find(d=>d.id===id);if(d){d.status=d.status===s?"pending":s;render()}}
 function setComment(id,v){const d=data.find(d=>d.id===id);if(d)d.comment=v}
-function setSuggestedSkill(id,v){const d=data.find(d=>d.id===id);if(d)d.suggestedSkill=v}
+function setObservations(id,v){const d=data.find(d=>d.id===id);if(d)d.observations=v}
 function toggleChip(id,field,val){
   const d=data.find(d=>d.id===id);if(!d)return;
   const arr=d[field];const i=arr.indexOf(val);
@@ -5755,8 +5770,10 @@ async function sendToSheets(rows){
     expertName:expert.name,
     expertEmail:expert.email,
     mappedProfiles:d.mappedProfiles.join(", "),
+    mappedTrainingPhases:d.mappedTrainingPhases.join(", "),
+    mappedFlightPhases:d.mappedFlightPhases.join(", "),
+    mappedAircraftFamilies:d.mappedAircraftFamilies.join(", "),
     mappedErrors:d.mappedErrors.join(", "),
-    mappedAircraft:d.mappedAircraft.join(", "),
     fidelity:(d.fidelity||[]).join(", "),
     skill_id:d.skill_mapping?.skill_id||"",
     skill_level:d.skill_mapping?.level||""
@@ -5791,9 +5808,9 @@ function submitNew(){
     evidence:document.getElementById("nEvidence").value,
     fidelity:[],
     skill_mapping:{skill_id:"",level:"",proposed_skill:null},
-    status:"pending",comment:"",
-    mappedProfiles:[],mappedErrors:[],mappedAircraft:[],
-    suggestedSkill:"",suggested:true
+    status:"pending",observations:"",comment:"",
+    mappedProfiles:[],mappedTrainingPhases:[],mappedFlightPhases:[],
+    mappedAircraftFamilies:[],mappedErrors:[],suggested:true
   };
   data.push(newItem);
   ["nLabel","nAction","nError","nWhen","nEvidence"].forEach(id=>document.getElementById(id).value="");
@@ -5830,23 +5847,21 @@ function render(){
     const statusBadge=`<span class="badge b-status-${d.status}">${d.status==="validated"?"✓ Validated":d.status==="flagged"?"⚑ Flagged":"● Pending"}</span>`;
     const newBadge=d.suggested?`<span class="badge b-new">New suggestion</span>`:"";
 
-    const profileChips=LEARNER_PROFILES.map(p=>{
-      const a=d.mappedProfiles.includes(p);
-      return `<button class="chip${a?" cp":""}" onclick="toggleChip('${d.id}','mappedProfiles','${p.replace(/'/g,"\\'")}');event.stopPropagation()">${p}</button>`;
-    }).join("");
+    // summary counts for header
+    const counts=[
+      d.mappedProfiles.length?`<span style="font-size:10px;color:var(--navy)">${d.mappedProfiles.length} profile${d.mappedProfiles.length>1?"s":""}</span>`:"",
+      d.mappedErrors.length?`<span style="font-size:10px;color:var(--rose)">${d.mappedErrors.length} error${d.mappedErrors.length>1?"s":""}</span>`:"",
+      d.mappedAircraftFamilies.length?`<span style="font-size:10px;color:var(--teal)">${d.mappedAircraftFamilies.length} aircraft</span>`:"",
+      d.mappedTrainingPhases.length?`<span style="font-size:10px;color:#4a2d8a">${d.mappedTrainingPhases.length} training phase${d.mappedTrainingPhases.length>1?"s":""}</span>`:"",
+      d.mappedFlightPhases.length?`<span style="font-size:10px;color:var(--amber)">${d.mappedFlightPhases.length} flight phase${d.mappedFlightPhases.length>1?"s":""}</span>`:"",
+    ].filter(Boolean).join("");
 
-    const errorChips=ERROR_TYPES.map(e=>{
-      const a=d.mappedErrors.includes(e);
-      return `<button class="chip${a?" ce":""}" onclick="toggleChip('${d.id}','mappedErrors','${e.replace(/'/g,"\\'")}');event.stopPropagation()">${e}</button>`;
+    // chip builders
+    const mkChips=(list,field,cls)=>list.map(v=>{
+      const a=d[field].includes(v);
+      const safe=v.replace(/'/g,"\\'");
+      return `<button class="chip${a?" "+cls:""}" onclick="toggleChip('${d.id}','${field}','${safe}');event.stopPropagation()">${v}</button>`;
     }).join("");
-
-    const aircraftChips=AIRCRAFT_TYPES.map(a=>{
-      const sel=d.mappedAircraft.includes(a);
-      return `<button class="chip${sel?" ca":""}" onclick="toggleChip('${d.id}','mappedAircraft','${a.replace(/'/g,"\\'")}');event.stopPropagation()">${a}</button>`;
-    }).join("");
-
-    const skillId=d.skill_mapping?.skill_id||"";
-    const skillLevel=d.skill_mapping?.level||"";
 
     return `
 <div class="card ${d.status}${d.suggested?" suggested":""}">
@@ -5856,21 +5871,27 @@ function render(){
       <div class="card-label">${d.label}</div>
       <div class="card-meta-row">
         <span class="badge ${catBadge(d.category)}">${d.category.replace("_"," ")}</span>
-        ${fids}
-        ${statusBadge}
-        ${newBadge}
-        ${d.mappedProfiles.length?`<span style="font-size:10px;color:var(--ink3)">${d.mappedProfiles.length} profile${d.mappedProfiles.length>1?"s":""}</span>`:""}
-        ${d.mappedErrors.length?`<span style="font-size:10px;color:var(--rose)">${d.mappedErrors.length} error${d.mappedErrors.length>1?"s":""}</span>`:""}
-        ${d.mappedAircraft.length?`<span style="font-size:10px;color:var(--teal)">${d.mappedAircraft.length} aircraft</span>`:""}
+        ${fids}${statusBadge}${newBadge}${counts}
       </div>
     </div>
     <span class="chevron${isOpen?" open":""}">▾</span>
   </div>
 
   <div class="card-bd${isOpen?" open":""}">
-    <!-- LEFT: intervention details -->
+
+    <!-- ── LEFT: 5 core intervention fields ── -->
     <div class="detail-col">
-      <div class="section-title">Intervention details</div>
+      <div class="section-title">Intervention</div>
+
+      <div class="detail-field">
+        <div class="dl">Label</div>
+        <div class="dv" style="font-weight:500">${d.label}</div>
+      </div>
+
+      <div class="detail-field">
+        <div class="dl">Category</div>
+        <div class="dv"><span class="badge ${catBadge(d.category)}" style="font-size:11px">${d.category.replace("_"," ")}</span></div>
+      </div>
 
       <div class="detail-field">
         <div class="dl">Specific action</div>
@@ -5886,57 +5907,57 @@ function render(){
         <div class="dl">When to use</div>
         <div class="dv">${d.when_to_use||"—"}</div>
       </div>
-
-      ${d.evidence?`<div class="detail-field">
-        <div class="dl">Evidence (interview quote)</div>
-        <div class="evidence-block">${d.evidence}</div>
-      </div>`:""}
-
-      ${skillId?`<div class="detail-field">
-        <div class="dl">Skill mapping</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
-          <span class="skill-chip">${skillId}</span>
-          <span class="skill-chip">${skillLevel}</span>
-        </div>
-      </div>`:""}
-
-      <div class="detail-field">
-        <div class="dl">Suggest corrected / alternative skill ID</div>
-        <input style="width:100%;padding:7px 10px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Mono',monospace;background:var(--card2)" 
-          placeholder="e.g. SS_COMMUNICATION_CLARITY" 
-          value="${d.suggestedSkill||""}" 
-          onchange="setSuggestedSkill('${d.id}',this.value)"
-          onclick="event.stopPropagation()">
-      </div>
     </div>
 
-    <!-- RIGHT: expert feedback -->
+    <!-- ── RIGHT: expert feedback ── -->
     <div class="feedback-col">
       <div class="section-title">Your expert feedback</div>
 
-      <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Verdict</div>
+      <!-- Verdict -->
+      <div class="map-title" style="margin-bottom:6px">Verdict</div>
       <div class="verdict-row">
         <button class="verdict-btn v-validate${d.status==="validated"?" active":""}" onclick="setStatus('${d.id}','validated');event.stopPropagation()">✓ Validate</button>
         <button class="verdict-btn v-flag${d.status==="flagged"?" active":""}" onclick="setStatus('${d.id}','flagged');event.stopPropagation()">⚑ Flag issue</button>
       </div>
 
-      <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Comments / suggested changes</div>
-      <textarea class="comment-box" placeholder="Notes, corrections, or concerns…" onclick="event.stopPropagation()" onchange="setComment('${d.id}',this.value)">${d.comment}</textarea>
+      <!-- Observations -->
+      <div class="map-title">Observations <span style="font-weight:300;color:var(--ink4)">(what you've seen in practice)</span></div>
+      <textarea class="obs-box" placeholder="Describe any real-world observations relevant to this intervention…" onclick="event.stopPropagation()" onchange="setObservations('${d.id}',this.value)">${d.observations}</textarea>
 
+      <!-- Comments -->
+      <div class="map-title">Comments / suggested changes</div>
+      <textarea class="comment-box" placeholder="Corrections, concerns, or rewording suggestions…" onclick="event.stopPropagation()" onchange="setComment('${d.id}',this.value)">${d.comment}</textarea>
+
+      <!-- Learner profiles -->
       <div class="map-section">
         <div class="map-title">Applicable learner profiles <span style="font-weight:300;color:var(--ink4)">(click to select)</span></div>
-        <div class="chips">${profileChips}</div>
+        <div class="chips">${mkChips(LEARNER_PROFILES,"mappedProfiles","cp")}</div>
       </div>
 
+      <!-- Training phase -->
+      <div class="map-section">
+        <div class="map-title">Training phase</div>
+        <div class="chips">${mkChips(TRAINING_PHASES,"mappedTrainingPhases","ct")}</div>
+      </div>
+
+      <!-- Flight phase -->
+      <div class="map-section">
+        <div class="map-title">Flight phase</div>
+        <div class="chips">${mkChips(FLIGHT_PHASES,"mappedFlightPhases","cf")}</div>
+      </div>
+
+      <!-- Aircraft family -->
+      <div class="map-section">
+        <div class="map-title">Aircraft family</div>
+        <div class="chips">${mkChips(AIRCRAFT_FAMILIES,"mappedAircraftFamilies","ca")}</div>
+      </div>
+
+      <!-- Related errors -->
       <div class="map-section">
         <div class="map-title">Related error types</div>
-        <div class="chips">${errorChips}</div>
+        <div class="chips">${mkChips(ERROR_TYPES,"mappedErrors","ce")}</div>
       </div>
 
-      <div class="map-section">
-        <div class="map-title">Applicable aircraft types</div>
-        <div class="chips">${aircraftChips}</div>
-      </div>
     </div>
   </div>
 
