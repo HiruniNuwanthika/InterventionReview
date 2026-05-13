@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviation Intervention Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#16140f;--ink2:#4a4640;--ink3:#8a8680;--ink4:#b8b4ae;
+  --paper:#f5f3ee;--card:#ffffff;--card2:#f9f8f5;
+  --rule:#e4e0d8;--rule2:#ccc8c0;
+  --navy:#1a3358;--navy-l:#e8edf5;--navy-lt:#c8d4e8;
+  --teal:#0e6b5e;--teal-l:#e4f2f0;--teal-lt:#a8d8d2;
+  --amber:#8a5a00;--amber-l:#fdf4e3;--amber-lt:#f0d090;
+  --rose:#8a2020;--rose-l:#faeaea;--rose-lt:#e8a8a8;
+  --slate:#3a4a5a;--slate-l:#eaecef;
+  --r:6px;--r-lg:10px;--r-xl:14px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,0.10),0 1px 4px rgba(0,0,0,0.06);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items:stretch;justify-content:space-between;min-height:64px}
+.header-brand{display:flex;align-items:center;gap:14px;padding:1rem 0}
+.header-brand .logo{width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:18px;color:#fff}
+.header-brand h1{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;letter-spacing:0.01em;color:#fff}
+.header-brand p{font-size:11px;color:rgba(255,255,255,0.5);margin-top:1px;letter-spacing:0.03em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:10px}
+.expert-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;color:#fff;transition:background 0.15s}
+.expert-pill:hover{background:rgba(255,255,255,0.18)}
+.expert-dot{width:8px;height:8px;border-radius:50%;background:#4ade80}
+.expert-dot.empty{background:rgba(255,255,255,0.3)}
+
+/* ── Modal ──────────────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(22,20,15,0.55);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:var(--r-xl);padding:2rem;width:460px;max-width:92vw;transform:translateY(12px);transition:transform 0.2s;box-shadow:var(--shadow-lg)}
+.overlay.open .modal{transform:translateY(0)}
+.modal-icon{width:44px;height:44px;background:var(--navy-l);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:22px}
+.modal h2{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:1.5rem}
+.field-group{margin-bottom:12px}
+.field-group label{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px}
+.field-group input{width:100%;padding:10px 12px;border:1px solid var(--rule2);border-radius:var(--r);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--card2);color:var(--ink);transition:border-color 0.15s}
+.field-group input:focus{outline:none;border-color:var(--navy);background:#fff}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--rule2);background:var(--card);color:var(--ink);transition:all 0.15s;white-space:nowrap;font-weight:400}
+.btn:hover{background:var(--card2);border-color:var(--rule2)}
+.btn-navy{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-navy:hover{background:#142844}
+.btn-teal{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt)}
+.btn-teal:hover{background:#d4ece9}
+.btn-rose{background:var(--rose-l);color:var(--rose);border-color:var(--rose-lt)}
+.btn-rose:hover{background:#f5dede}
+.btn-sm{padding:5px 11px;font-size:12px}
+
+/* ── Main layout ─────────────────────────────────────────────── */
+.main{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem}
+
+/* ── Progress strip ───────────────────────────────────────────── */
+.progress-strip{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);padding:1rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.5rem;box-shadow:var(--shadow)}
+.stat-group{display:flex;gap:1.25rem;flex:1}
+.stat{text-align:center;padding:0 0.75rem;border-right:1px solid var(--rule)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:'DM Serif Display',serif;font-size:24px;line-height:1}
+.stat-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-top:2px}
+.n-teal{color:var(--teal)}
+.n-rose{color:var(--rose)}
+.n-ink3{color:var(--ink3)}
+.prog-bar-wrap{flex:1}
+.prog-bar-track{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),#2ab8a6);border-radius:3px;transition:width 0.5s ease}
+.prog-bar-label{font-size:11px;color:var(--ink3)}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center}
+.toolbar input[type=text]{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--ink)}
+.toolbar input[type=text]:focus{outline:none;border-color:var(--navy)}
+.toolbar select{padding:9px 12px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--ink)}
+
+/* ── Suggest form ─────────────────────────────────────────────── */
+.suggest-panel{background:var(--card);border:1px solid var(--amber-lt);border-radius:var(--r-xl);padding:1.5rem;margin-bottom:1.25rem;display:none;box-shadow:var(--shadow)}
+.suggest-panel.open{display:block}
+.suggest-panel h3{font-family:'DM Serif Display',serif;font-size:16px;font-weight:400;margin-bottom:1rem;color:var(--amber)}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sg-full{grid-column:1/-1}
+.sg label{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px}
+.sg input,.sg textarea,.sg select{width:100%;padding:8px 10px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--card2);color:var(--ink);resize:vertical}
+.sg input:focus,.sg textarea:focus{outline:none;border-color:var(--navy)}
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.cards{display:flex;flex-direction:column;gap:10px}
+
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow 0.15s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card.validated{border-left:3px solid var(--teal)}
+.card.flagged{border-left:3px solid var(--rose)}
+.card.pending{border-left:3px solid var(--rule2)}
+.card.suggested{border-left:3px solid var(--amber)}
+
+/* Card header */
+.card-hd{display:flex;align-items:center;padding:1rem 1.25rem;cursor:pointer;gap:12px;user-select:none}
+.card-id{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);background:var(--card2);padding:3px 7px;border-radius:4px;border:1px solid var(--rule);white-space:nowrap;flex-shrink:0}
+.card-hd-text{flex:1;min-width:0}
+.card-label{font-size:13px;font-weight:500;line-height:1.45;color:var(--ink)}
+.card-meta-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:0.02em;border:1px solid transparent}
+.b-cat-ped{background:var(--navy-l);color:var(--navy);border-color:var(--navy-lt)}
+.b-cat-inf{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt)}
+.b-cat-sim{background:#f0eafa;color:#5a2d91;border-color:#c8b0e8}
+.b-status-validated{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt)}
+.b-status-flagged{background:var(--rose-l);color:var(--rose);border-color:var(--rose-lt)}
+.b-status-pending{background:var(--card2);color:var(--ink3);border-color:var(--rule)}
+.b-fidelity{background:var(--slate-l);color:var(--slate);border-color:#c0c8d0}
+.b-new{background:var(--amber-l);color:var(--amber);border-color:var(--amber-lt)}
+.chevron{font-size:14px;color:var(--ink4);transition:transform 0.2s;flex-shrink:0;margin-left:4px}
+.chevron.open{transform:rotate(180deg)}
+
+/* Card body — two columns */
+.card-bd{display:none;border-top:1px solid var(--rule)}
+.card-bd.open{display:grid;grid-template-columns:1fr 1fr;gap:0}
+
+/* Left: intervention details */
+.detail-col{padding:1.25rem;border-right:1px solid var(--rule)}
+.section-title{font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--rule)}
+.detail-field{margin-bottom:1rem}
+.dl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+.dv{font-size:13px;color:var(--ink);line-height:1.6}
+.evidence-block{background:var(--card2);border-left:2px solid var(--rule2);padding:8px 12px;border-radius:0 var(--r) var(--r) 0;font-size:12px;color:var(--ink2);line-height:1.6;font-style:italic;margin-top:4px}
+.skill-chip{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;background:var(--navy-l);color:var(--navy);padding:3px 8px;border-radius:4px;border:1px solid var(--navy-lt)}
+
+/* Right: expert feedback */
+.feedback-col{padding:1.25rem;background:var(--card2)}
+.verdict-row{display:flex;gap:8px;margin-bottom:1rem}
+.verdict-btn{flex:1;padding:8px;border-radius:var(--r);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--rule2);background:var(--card);color:var(--ink);text-align:center;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.verdict-btn:hover{background:var(--card)}
+.v-validate.active{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt);font-weight:500}
+.v-flag.active{background:var(--rose-l);color:var(--rose);border-color:var(--rose-lt);font-weight:500}
+
+.comment-box{width:100%;padding:9px 11px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:72px;background:var(--card);color:var(--ink);line-height:1.5;transition:border-color 0.15s;margin-bottom:1rem}
+.comment-box:focus{outline:none;border-color:var(--navy)}
+
+/* Mapping chips */
+.map-section{margin-bottom:1rem}
+.map-title{font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--rule2);cursor:pointer;background:var(--card);color:var(--ink2);font-family:'DM Sans',sans-serif;transition:all 0.12s}
+.chip:hover{border-color:var(--rule2);background:var(--card2)}
+.chip.cp{background:var(--navy-l);color:var(--navy);border-color:var(--navy-lt)}   /* profile */
+.chip.ce{background:var(--rose-l);color:var(--rose);border-color:var(--rose-lt)}   /* error */
+.chip.ca{background:var(--teal-l);color:var(--teal);border-color:var(--teal-lt)}   /* aircraft */
+
+.card-footer{padding:0.75rem 1.25rem;background:var(--card2);border-top:1px solid var(--rule);display:flex;justify-content:flex-end;align-items:center;gap:10px}
+.saved-flash{font-size:12px;color:var(--teal);opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:4px}
+.saved-flash.show{opacity:1}
+
+/* ── Footer bar ───────────────────────────────────────────────── */
+.footer-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:1.5rem 0 2.5rem;margin-top:0.5rem}
+.footer-note{font-size:12px;color:var(--ink3)}
+.footer-actions{display:flex;gap:8px}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:#fff;font-size:13px;padding:10px 20px;border-radius:var(--r-lg);opacity:0;pointer-events:none;transition:opacity 0.25s;z-index:300;box-shadow:var(--shadow-lg)}
+.toast.show{opacity:1}
+
+.empty{text-align:center;padding:3rem;color:var(--ink3)}
+
+@media(max-width:680px){
+  .card-bd.open{grid-template-columns:1fr}
+  .detail-col{border-right:none;border-bottom:1px solid var(--rule)}
+  .sg{grid-template-columns:1fr}
+  .stat-group{gap:0.75rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ── REPLACE with your Apps Script URL ──────────────────────── -->
+<script>const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYEgsz_URgiyAwBuFenLNzTCAJVvJXHq_DvGtxCk-bQJVohSrlC_YeiMjvzzhi4sZu/exec";</script>
+
+<!-- ── Expert identity modal ──────────────────────────────────── -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-icon">✈</div>
+    <h2>Welcome, expert reviewer</h2>
+    <p>Your name and email are saved with every piece of feedback so results can be attributed and compared across reviewers.</p>
+    <div class="field-group"><label>Full name</label><input id="eName" placeholder="e.g. Capt. Sarah Brown"></div>
+    <div class="field-group"><label>Email</label><input id="eEmail" type="email" placeholder="e.g. s.brown@airline.com"></div>
+    <div class="modal-footer">
+      <button class="btn btn-navy" onclick="saveExpert()">Start reviewing →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Header ─────────────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-brand">
+    <div class="logo">✈</div>
+    <div>
+      <h1>Intervention Review</h1>
+      <p>Expert validation portal</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="expert-pill" onclick="document.getElementById('overlay').classList.add('open')">
+      <div class="expert-dot empty" id="expertDot"></div>
+      <span id="expertLabel">Set your name</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ───────────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Progress -->
+  <div class="progress-strip">
+    <div class="stat-group">
+      <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Total</div></div>
+      <div class="stat"><div class="stat-n n-teal" id="sVal">0</div><div class="stat-l">Validated</div></div>
+      <div class="stat"><div class="stat-n n-rose" id="sFlag">0</div><div class="stat-l">Flagged</div></div>
+      <div class="stat"><div class="stat-n n-ink3" id="sPend">0</div><div class="stat-l">Pending</div></div>
+    </div>
+    <div class="prog-bar-wrap">
+      <div class="prog-bar-track"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-bar-label" id="progLabel">0 of 0 reviewed</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search label, description, skill…" oninput="render()">
+    <select id="fCat" onchange="render()"><option value="">All categories</option></select>
+    <select id="fFid" onchange="render()"><option value="">All fidelities</option></select>
+    <select id="fSt" onchange="render()">
+      <option value="">All statuses</option>
+      <option value="pending">Pending</option>
+      <option value="validated">Validated</option>
+      <option value="flagged">Flagged</option>
+    </select>
+    <button class="btn" onclick="toggleSuggest()">＋ Suggest new</button>
+    <button class="btn btn-navy" onclick="submitAll()">↑ Submit all to Sheets</button>
+  </div>
+
+  <!-- Suggest panel -->
+  <div class="suggest-panel" id="suggestPanel">
+    <h3>Suggest a new intervention</h3>
+    <div class="sg">
+      <div><label>Label / short name</label><input id="nLabel" placeholder="Descriptive action label"></div>
+      <div><label>Category</label>
+        <select id="nCat"><option value="pedagogical">Pedagogical</option><option value="in_flight">In-flight</option><option value="simulation">Simulation</option><option value="other">Other</option></select>
+      </div>
+      <div class="sg-full"><label>Specific action (what the instructor does)</label><textarea id="nAction" rows="3" placeholder="Describe the concrete instructor action…"></textarea></div>
+      <div class="sg-full"><label>Error / gap it addresses</label><textarea id="nError" rows="2" placeholder="What CRM/technical failure does this target?"></textarea></div>
+      <div><label>When to use</label><textarea id="nWhen" rows="2" placeholder="Under what conditions?"></textarea></div>
+      <div><label>Evidence / source quote</label><textarea id="nEvidence" rows="2" placeholder="Quote from interview or handbook…"></textarea></div>
+      <div class="sg-full" style="display:flex;gap:8px;justify-content:flex-end;padding-top:4px">
+        <button class="btn" onclick="toggleSuggest()">Cancel</button>
+        <button class="btn btn-navy" onclick="submitNew()">Add suggestion</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards" id="cards"></div>
+
+  <!-- Footer -->
+  <div class="footer-bar">
+    <div class="footer-note">Feedback saves to Google Sheets. Use "Download JSON backup" as a local copy.</div>
+    <div class="footer-actions">
+      <button class="btn" onclick="downloadJSON()">↓ Download JSON backup</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONFIGURATION — replace with your actual data
+// ════════════════════════════════════════════════════════════════
+
+const LEARNER_PROFILES = [
+  "Student Pilot","Cadet","First Officer","Senior First Officer",
+  "Captain","Check Captain","Training Captain","Rusty returner",
+  "Type-rating candidate","Recurrent trainee"
+];
+
+const ERROR_TYPES = [
+  "Loss of situation awareness","Task saturation","Complacency",
+  "Authority gradient / CRM failure","Pseudo-listening","Automation over-reliance",
+  "Checklist deviation","Mode confusion","Fuel mismanagement",
+  "Go-around hesitation","CFIT risk","Poor self-assessment",
+  "Communication breakdown","Fixation / tunnel vision"
+];
+
+const AIRCRAFT_TYPES = [
+  "B737 Classic","B737 NG","B737 MAX",
+  "B777","B787",
+  "A320 family","A330","A350",
+  "ATR 42/72","Dash 8 / Q400",
+  "Generic FNPT II","Full Flight Simulator (generic)"
+];
+
+// ── PASTE YOUR FULL INTERVENTIONS JSON HERE ──────────────────────
+const RAW_INTERVENTIONS = [
+  {"id":"INT001","label":"Write crew's proposed causes on whiteboard then cross out symptoms to isolate root cause","category":"pedagogical","specific_action":"During debrief, write each crew-identified cause (e.g., 'lost SA', 'workload') on the whiteboard as separate items, then systematically discuss each and cross out those that were symptoms rather than root causes, visually narrowing down to the actual root cause (e.g., communication breakdown). Guide crew backwards through the event chain by asking 'why did that happen?' at each step until arriving at the interpersonal root cause.","addresses_error":"Crew misidentifies symptoms (e.g., 'lost situation awareness') as root causes, missing the underlying CRM failure (e.g., captain not listening to FO's input)","when_to_use":"During post-sim debrief when crew attributes errors to surface-level symptoms or procedural deviations rather than deeper leadership/communication breakdowns","skill_mapping":{"skill_id":"SS_ERROR_DETECTION_MGMT","level":"subskill","proposed_skill":null},"fidelity":["classroom","simulator"],"evidence":"I'll write them on the board... cross them out... that wasn't the root cause though, was it? | I lost situation awareness... but why... you weren't listening to your mate"},
+  {"id":"INT002","label":"Open grading form with crew starting at grade 3 and ask them to justify movement up or down","category":"pedagogical","specific_action":"After the facilitated debrief, open the NTS grading form with the crew, state 'I always start at a three because that's what I expect to see', then ask the crew to justify why the grade should move up or down by reading the competency descriptors together.","addresses_error":"Crew disconnects from grading criteria and treats assessment as opaque judgment rather than a development opportunity; student cannot self-assess against competency standards","when_to_use":"At the end of any simulator assessment debrief, especially with crews unfamiliar with competency-based grading","skill_mapping":{"skill_id":"SS_SELF_AWARENESS","level":"subskill","proposed_skill":null},"fidelity":["simulator"],"evidence":"I always start at a three... can you justify to me why I need to go up or down on these?"},
+  {"id":"INT003","label":"Ask dismissing crew member to restate exactly what the other person said to expose listening failure","category":"pedagogical","specific_action":"During debrief, when one crew member dismissed the other's input, ask the dismissing crew member to restate exactly what the other person said. When they cannot accurately recall it, use this as evidence that they were talking at — not listening to — each other.","addresses_error":"Captain acknowledges FO's verbal input but does not actually process or consider the content (pseudo-listening)","when_to_use":"When a senior crew member dismissed a junior's suggestion that turned out to be correct, and claims they 'didn't understand' what was said","skill_mapping":{"skill_id":"SS_ATTENTIVE_RECEPTION","level":"subskill","proposed_skill":null},"fidelity":["simulator"],"evidence":"what was the first officer trying to say to you... what did you actually hear?"},
+  {"id":"INT004","label":"Stay silent and let crew self-debrief first, then layer in instructor observations","category":"pedagogical","specific_action":"After the sim exercise, refrain from stating observations first. Ask 'how do you think that went?' and let crew members identify and discuss issues themselves. Only after they have exhausted their own analysis, introduce any additional observations the crew missed.","addresses_error":"Instructor-led debriefs cause crew to passively receive feedback rather than developing self-assessment and crew-level diagnostic skills","when_to_use":"Standard approach for all facilitated debriefs, especially when crew members are capable of self-reflection","skill_mapping":{"skill_id":"SS_SELF_AWARENESS","level":"subskill","proposed_skill":null},"fidelity":["simulator"],"evidence":"I'll let them debrief first... facilitated debrief... get them talking"},
+  {"id":"INT005","label":"Inject RNP failure to force reversion to raw-data conventional navigation","category":"in_flight","specific_action":"During a simulated approach, inject an RNP failure after the missed approach point, forcing the crew to abandon RNAV procedures and revert to conventional navigation (e.g., NDB), which requires reprogramming, rebriefing, and changes the flight path geometry.","addresses_error":"Crew relies on automation for navigation and fails to manage communication/workload when forced to replan under time pressure","when_to_use":"When assessing crew's ability to handle degraded navigation combined with approach replanning, particularly to expose CRM issues under moderate pressure","skill_mapping":{"skill_id":"SS_ABNORMAL_EMERG_PROC","level":"subskill","proposed_skill":null},"fidelity":["simulator"],"evidence":"I gave them an RNP failure... they had to do an extraction... fly past the airfield"},
+  {"id":"INT006","label":"Type timestamped observation notes on phone during sim for use as debrief prompts","category":"pedagogical","specific_action":"During the sim session, type brief observation notes on a phone or tablet (e.g., 'FO called for another lap of the hold', 'who should we talk to first?') capturing specific moments and quotes to use as concrete prompts during the facilitated debrief.","addresses_error":"Instructor forgets specific moments or relies on vague recollections during debrief, reducing the specificity and impact of feedback","when_to_use":"Throughout any simulator session to capture specific behavioural observations in real time","skill_mapping":{"skill_id":"SS_GIVING_FEEDBACK","level":"subskill","proposed_skill":null},"fidelity":["simulator"],"evidence":"I just make a whole lot of notes... just flagged things in there"},
+  {"id":"INT007","label":"Ask captain to evaluate FO's dismissed suggestion on its merits","category":"pedagogical","specific_action":"During debrief, after the captain acknowledges the FO suggested a course of action (e.g., entering a hold), directly ask 'Do you think it was a good idea or a bad idea?' forcing the captain to evaluate the FO's dismissed suggestion on its merits rather than defending their original decision.","addresses_error":"Senior captain dismisses junior FO's valid tactical suggestions due to authority gradient or habitual patterns","when_to_use":"When a captain dismissed a correct FO suggestion and needs to confront the quality of the rejected input","skill_mapping":{"skill_id":"SS_INPUT_INTEGRATION","level":"subskill","proposed_skill":null},"fidelity":["simulator"],"evidence":"Do you think it was a good idea or a bad idea?"}
+];
+
+// ════════════════════════════════════════════════════════════════
+// State
+// ════════════════════════════════════════════════════════════════
+let expert = {name:"", email:""};
+let data = RAW_INTERVENTIONS.map(d => ({
+  ...d,
+  status: "pending",
+  comment: "",
+  mappedProfiles: [],
+  mappedErrors: [],
+  mappedAircraft: [],
+  suggestedSkill: d.skill_mapping?.proposed_skill || "",
+  suggested: false
+}));
+let open = new Set();
+
+// ════════════════════════════════════════════════════════════════
+// Expert
+// ════════════════════════════════════════════════════════════════
+function saveExpert(){
+  const n=document.getElementById("eName").value.trim();
+  const e=document.getElementById("eEmail").value.trim();
+  if(!n||!e){alert("Please enter your name and email.");return}
+  expert={name:n,email:e};
+  document.getElementById("expertLabel").textContent=n;
+  document.getElementById("expertDot").classList.remove("empty");
+  document.getElementById("overlay").classList.remove("open");
+}
+window.onload=()=>{document.getElementById("overlay").classList.add("open");render();}
+
+// ════════════════════════════════════════════════════════════════
+// Filters
+// ════════════════════════════════════════════════════════════════
+function initFilters(){
+  const cats=[...new Set(data.map(d=>d.category))].sort();
+  const fids=[...new Set(data.flatMap(d=>d.fidelity||[]))].sort();
+  const fCat=document.getElementById("fCat");
+  const fFid=document.getElementById("fFid");
+  const curCat=fCat.value, curFid=fFid.value;
+  fCat.innerHTML='<option value="">All categories</option>';
+  cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;if(c===curCat)o.selected=true;fCat.appendChild(o)});
+  fFid.innerHTML='<option value="">All fidelities</option>';
+  fids.forEach(f=>{const o=document.createElement("option");o.value=f;o.textContent=f;if(f===curFid)o.selected=true;fFid.appendChild(o)});
+}
+
+function filtered(){
+  const q=document.getElementById("search").value.toLowerCase();
+  const cat=document.getElementById("fCat").value;
+  const fid=document.getElementById("fFid").value;
+  const st=document.getElementById("fSt").value;
+  return data.filter(d=>{
+    const mq=!q||(d.label+d.specific_action+d.addresses_error+(d.skill_mapping?.skill_id||'')).toLowerCase().includes(q);
+    const mc=!cat||d.category===cat;
+    const mf=!fid||(d.fidelity||[]).includes(fid);
+    const ms=!st||d.status===st;
+    return mq&&mc&&mf&&ms;
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// Stats
+// ════════════════════════════════════════════════════════════════
+function updateStats(){
+  const v=data.filter(d=>d.status==="validated").length;
+  const f=data.filter(d=>d.status==="flagged").length;
+  const p=data.filter(d=>d.status==="pending").length;
+  const rev=v+f;
+  document.getElementById("sTotal").textContent=data.length;
+  document.getElementById("sVal").textContent=v;
+  document.getElementById("sFlag").textContent=f;
+  document.getElementById("sPend").textContent=p;
+  const pct=data.length?Math.round(rev/data.length*100):0;
+  document.getElementById("progFill").style.width=pct+"%";
+  document.getElementById("progLabel").textContent=`${rev} of ${data.length} reviewed (${pct}%)`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// Actions
+// ════════════════════════════════════════════════════════════════
+function toggleCard(id){open.has(id)?open.delete(id):open.add(id);render()}
+function setStatus(id,s){const d=data.find(d=>d.id===id);if(d){d.status=d.status===s?"pending":s;render()}}
+function setComment(id,v){const d=data.find(d=>d.id===id);if(d)d.comment=v}
+function setSuggestedSkill(id,v){const d=data.find(d=>d.id===id);if(d)d.suggestedSkill=v}
+function toggleChip(id,field,val){
+  const d=data.find(d=>d.id===id);if(!d)return;
+  const arr=d[field];const i=arr.indexOf(val);
+  i>=0?arr.splice(i,1):arr.push(val);render();
+}
+
+// ════════════════════════════════════════════════════════════════
+// Sheets / save
+// ════════════════════════════════════════════════════════════════
+async function saveCard(id){
+  if(!expert.name){document.getElementById("overlay").classList.add("open");return}
+  const d=data.find(d=>d.id===id);if(!d)return;
+  await sendToSheets([d]);
+  const el=document.getElementById("sf_"+id);
+  if(el){el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500)}
+}
+
+async function submitAll(){
+  if(!expert.name){document.getElementById("overlay").classList.add("open");return}
+  showToast("Saving all feedback…");
+  await sendToSheets(data);
+  showToast("All feedback saved to Google Sheets ✓");
+}
+
+async function sendToSheets(rows){
+  if(APPS_SCRIPT_URL==="YOUR_APPS_SCRIPT_URL_HERE"){showToast("⚠ Set your Apps Script URL in the HTML file");return}
+  const payload=rows.map(d=>({
+    ...d,
+    expertName:expert.name,
+    expertEmail:expert.email,
+    mappedProfiles:d.mappedProfiles.join(", "),
+    mappedErrors:d.mappedErrors.join(", "),
+    mappedAircraft:d.mappedAircraft.join(", "),
+    fidelity:(d.fidelity||[]).join(", "),
+    skill_id:d.skill_mapping?.skill_id||"",
+    skill_level:d.skill_mapping?.level||""
+  }));
+  try{
+    await fetch(APPS_SCRIPT_URL,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"application/json"},mode:"no-cors"});
+  }catch(e){showToast("Network error — check Apps Script URL")}
+}
+
+function downloadJSON(){
+  const out=JSON.stringify({expert,feedback:data},null,2);
+  const a=document.createElement("a");
+  a.href="data:application/json;charset=utf-8,"+encodeURIComponent(out);
+  a.download=`review_${expert.name.replace(/\s+/g,"_")||"feedback"}.json`;
+  a.click();
+}
+
+// ════════════════════════════════════════════════════════════════
+// Suggest new
+// ════════════════════════════════════════════════════════════════
+function toggleSuggest(){document.getElementById("suggestPanel").classList.toggle("open")}
+function submitNew(){
+  const label=document.getElementById("nLabel").value.trim();
+  if(!label){alert("Please add a label.");return}
+  const newItem={
+    id:"NEW_"+Date.now(),
+    label,
+    category:document.getElementById("nCat").value,
+    specific_action:document.getElementById("nAction").value,
+    addresses_error:document.getElementById("nError").value,
+    when_to_use:document.getElementById("nWhen").value,
+    evidence:document.getElementById("nEvidence").value,
+    fidelity:[],
+    skill_mapping:{skill_id:"",level:"",proposed_skill:null},
+    status:"pending",comment:"",
+    mappedProfiles:[],mappedErrors:[],mappedAircraft:[],
+    suggestedSkill:"",suggested:true
+  };
+  data.push(newItem);
+  ["nLabel","nAction","nError","nWhen","nEvidence"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("suggestPanel").classList.remove("open");
+  render();showToast("New intervention added ✓");
+}
+
+// ════════════════════════════════════════════════════════════════
+// Toast
+// ════════════════════════════════════════════════════════════════
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800)}
+
+// ════════════════════════════════════════════════════════════════
+// Category badge class
+// ════════════════════════════════════════════════════════════════
+function catBadge(cat){
+  if(cat==="pedagogical")return"b-cat-ped";
+  if(cat==="in_flight")return"b-cat-inf";
+  return"b-cat-sim";
+}
+
+// ════════════════════════════════════════════════════════════════
+// Render
+// ════════════════════════════════════════════════════════════════
+function render(){
+  initFilters();updateStats();
+  const list=filtered();
+  const container=document.getElementById("cards");
+  if(!list.length){container.innerHTML='<div class="empty">No interventions match your filters.</div>';return}
+
+  container.innerHTML=list.map(d=>{
+    const isOpen=open.has(d.id);
+    const fids=(d.fidelity||[]).map(f=>`<span class="badge b-fidelity">${f}</span>`).join("");
+    const statusBadge=`<span class="badge b-status-${d.status}">${d.status==="validated"?"✓ Validated":d.status==="flagged"?"⚑ Flagged":"● Pending"}</span>`;
+    const newBadge=d.suggested?`<span class="badge b-new">New suggestion</span>`:"";
+
+    const profileChips=LEARNER_PROFILES.map(p=>{
+      const a=d.mappedProfiles.includes(p);
+      return `<button class="chip${a?" cp":""}" onclick="toggleChip('${d.id}','mappedProfiles','${p.replace(/'/g,"\\'")}');event.stopPropagation()">${p}</button>`;
+    }).join("");
+
+    const errorChips=ERROR_TYPES.map(e=>{
+      const a=d.mappedErrors.includes(e);
+      return `<button class="chip${a?" ce":""}" onclick="toggleChip('${d.id}','mappedErrors','${e.replace(/'/g,"\\'")}');event.stopPropagation()">${e}</button>`;
+    }).join("");
+
+    const aircraftChips=AIRCRAFT_TYPES.map(a=>{
+      const sel=d.mappedAircraft.includes(a);
+      return `<button class="chip${sel?" ca":""}" onclick="toggleChip('${d.id}','mappedAircraft','${a.replace(/'/g,"\\'")}');event.stopPropagation()">${a}</button>`;
+    }).join("");
+
+    const skillId=d.skill_mapping?.skill_id||"";
+    const skillLevel=d.skill_mapping?.level||"";
+
+    return `
+<div class="card ${d.status}${d.suggested?" suggested":""}">
+  <div class="card-hd" onclick="toggleCard('${d.id}')">
+    <span class="card-id">${d.id}</span>
+    <div class="card-hd-text">
+      <div class="card-label">${d.label}</div>
+      <div class="card-meta-row">
+        <span class="badge ${catBadge(d.category)}">${d.category.replace("_"," ")}</span>
+        ${fids}
+        ${statusBadge}
+        ${newBadge}
+        ${d.mappedProfiles.length?`<span style="font-size:10px;color:var(--ink3)">${d.mappedProfiles.length} profile${d.mappedProfiles.length>1?"s":""}</span>`:""}
+        ${d.mappedErrors.length?`<span style="font-size:10px;color:var(--rose)">${d.mappedErrors.length} error${d.mappedErrors.length>1?"s":""}</span>`:""}
+        ${d.mappedAircraft.length?`<span style="font-size:10px;color:var(--teal)">${d.mappedAircraft.length} aircraft</span>`:""}
+      </div>
+    </div>
+    <span class="chevron${isOpen?" open":""}">▾</span>
+  </div>
+
+  <div class="card-bd${isOpen?" open":""}">
+    <!-- LEFT: intervention details -->
+    <div class="detail-col">
+      <div class="section-title">Intervention details</div>
+
+      <div class="detail-field">
+        <div class="dl">Specific action</div>
+        <div class="dv">${d.specific_action||"—"}</div>
+      </div>
+
+      <div class="detail-field">
+        <div class="dl">Error / gap addressed</div>
+        <div class="dv">${d.addresses_error||"—"}</div>
+      </div>
+
+      <div class="detail-field">
+        <div class="dl">When to use</div>
+        <div class="dv">${d.when_to_use||"—"}</div>
+      </div>
+
+      ${d.evidence?`<div class="detail-field">
+        <div class="dl">Evidence (interview quote)</div>
+        <div class="evidence-block">${d.evidence}</div>
+      </div>`:""}
+
+      ${skillId?`<div class="detail-field">
+        <div class="dl">Skill mapping</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          <span class="skill-chip">${skillId}</span>
+          <span class="skill-chip">${skillLevel}</span>
+        </div>
+      </div>`:""}
+
+      <div class="detail-field">
+        <div class="dl">Suggest corrected / alternative skill ID</div>
+        <input style="width:100%;padding:7px 10px;border:1px solid var(--rule2);border-radius:var(--r);font-size:13px;font-family:'DM Mono',monospace;background:var(--card2)" 
+          placeholder="e.g. SS_COMMUNICATION_CLARITY" 
+          value="${d.suggestedSkill||""}" 
+          onchange="setSuggestedSkill('${d.id}',this.value)"
+          onclick="event.stopPropagation()">
+      </div>
+    </div>
+
+    <!-- RIGHT: expert feedback -->
+    <div class="feedback-col">
+      <div class="section-title">Your expert feedback</div>
+
+      <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Verdict</div>
+      <div class="verdict-row">
+        <button class="verdict-btn v-validate${d.status==="validated"?" active":""}" onclick="setStatus('${d.id}','validated');event.stopPropagation()">✓ Validate</button>
+        <button class="verdict-btn v-flag${d.status==="flagged"?" active":""}" onclick="setStatus('${d.id}','flagged');event.stopPropagation()">⚑ Flag issue</button>
+      </div>
+
+      <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Comments / suggested changes</div>
+      <textarea class="comment-box" placeholder="Notes, corrections, or concerns…" onclick="event.stopPropagation()" onchange="setComment('${d.id}',this.value)">${d.comment}</textarea>
+
+      <div class="map-section">
+        <div class="map-title">Applicable learner profiles <span style="font-weight:300;color:var(--ink4)">(click to select)</span></div>
+        <div class="chips">${profileChips}</div>
+      </div>
+
+      <div class="map-section">
+        <div class="map-title">Related error types</div>
+        <div class="chips">${errorChips}</div>
+      </div>
+
+      <div class="map-section">
+        <div class="map-title">Applicable aircraft types</div>
+        <div class="chips">${aircraftChips}</div>
+      </div>
+    </div>
+  </div>
+
+  ${isOpen?`<div class="card-footer">
+    <span class="saved-flash" id="sf_${d.id}">✓ Saved to Sheets</span>
+    <button class="btn btn-sm btn-teal" onclick="saveCard('${d.id}');event.stopPropagation()">↑ Save this card</button>
+  </div>`:""}
+</div>`;
+  }).join("");
+}
+</script>
+</body>
+</html>
