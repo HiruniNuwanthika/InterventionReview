@@ -5687,29 +5687,15 @@ window.onload=()=>{document.getElementById("overlay").classList.add("open");rend
 // ════════════════════════════════════════════════════════════════
 // Filters
 // ════════════════════════════════════════════════════════════════
-function initFilters(){
-  const cats=[...new Set(data.map(d=>d.category))].sort();
-  const fids=[...new Set(data.flatMap(d=>d.fidelity||[]))].sort();
-  const fCat=document.getElementById("fCat");
-  const fFid=document.getElementById("fFid");
-  const curCat=fCat.value, curFid=fFid.value;
-  fCat.innerHTML='<option value="">All categories</option>';
-  cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;if(c===curCat)o.selected=true;fCat.appendChild(o)});
-  fFid.innerHTML='<option value="">All fidelities</option>';
-  fids.forEach(f=>{const o=document.createElement("option");o.value=f;o.textContent=f;if(f===curFid)o.selected=true;fFid.appendChild(o)});
-}
+function initFilters(){}
 
 function filtered(){
   const q=document.getElementById("search").value.toLowerCase();
-  const cat=document.getElementById("fCat").value;
-  const fid=document.getElementById("fFid").value;
   const st=document.getElementById("fSt").value;
   return data.filter(d=>{
     const mq=!q||(d.label+d.specific_action+d.addresses_error+(d.skill_mapping?.skill_id||'')).toLowerCase().includes(q);
-    const mc=!cat||d.category===cat;
-    const mf=!fid||(d.fidelity||[]).includes(fid);
     const ms=!st||d.status===st;
-    return mq&&mc&&mf&&ms;
+    return mq&&ms;
   });
 }
 
