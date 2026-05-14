@@ -5900,11 +5900,7 @@ function render(){
         <button class="verdict-btn v-validate${d.status==="validated"?" active":""}" onclick="setStatus('${d.id}','validated');event.stopPropagation()">✓ Validate</button>
         <button class="verdict-btn v-flag${d.status==="flagged"?" active":""}" onclick="setStatus('${d.id}','flagged');event.stopPropagation()">⚑ Flag issue</button>
       </div>
-
-      <!-- Observations -->
-      <div class="map-title">Observations <span style="font-weight:300;color:var(--ink4)">(what you've seen in practice)</span></div>
-      <textarea class="obs-box" placeholder="Describe any real-world observations relevant to this intervention…" onclick="event.stopPropagation()" onchange="setObservations('${d.id}',this.value)">${d.observations}</textarea>
-
+      
       <!-- Comments -->
       <div class="map-title">Comments / suggested changes</div>
       <textarea class="comment-box" placeholder="Corrections, concerns, or rewording suggestions…" onclick="event.stopPropagation()" onchange="setComment('${d.id}',this.value)">${d.comment}</textarea>
