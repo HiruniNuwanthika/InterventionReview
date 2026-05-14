@@ -5675,8 +5675,9 @@ let open = new Set();
 // ════════════════════════════════════════════════════════════════
 function saveExpert(){
   const n=document.getElementById("eName").value.trim();
-  if(!n){alert("Please enter your name.");return}
-  expert={name:n,email:""};
+  const e=document.getElementById("eEmail").value.trim();
+  if(!n||!e){alert("Please enter your name and email.");return}
+  expert={name:n,email:e};
   document.getElementById("expertLabel").textContent=n;
   document.getElementById("expertDot").classList.remove("empty");
   document.getElementById("overlay").classList.remove("open");
