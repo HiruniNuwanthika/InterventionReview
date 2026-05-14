@@ -321,6 +321,7 @@ const ERROR_TYPES = [
 // ── PASTE YOUR FULL INTERVENTIONS JSON HERE ──────────────────────
 const RAW_INTERVENTIONS = [
   {
+    "id": "Call with Tim Cave (1)_interventions_v20260408_INT002",
     "label": "Write crew's proposed causes on whiteboard then cross out symptoms to isolate root cause",
     "category": "pedagogical",
     "specific_action": "During debrief, write each crew-identified cause (e.g., 'lost SA', 'workload') on the whiteboard as separate items, then systematically discuss each and cross out those that were symptoms rather than root causes, visually narrowing down to the actual root cause (e.g., communication breakdown). Guide crew backwards through the event chain by asking 'why did that happen?' at each step until arriving at the interpersonal root cause.",
@@ -5847,7 +5848,6 @@ function render(){
     return `
 <div class="card ${d.status}${d.suggested?" suggested":""}">
   <div class="card-hd" onclick="toggleCard('${d.id}')">
-    <span class="card-id">${d.id}</span>
     <div class="card-hd-text">
       <div class="card-label">${d.label}</div>
       <div class="card-meta-row">
